@@ -1,0 +1,100 @@
+﻿@page "/Updateproduct/{Product_Id:int}"
+@layout MainLayout
+@using BlazorA.Service;
+@using DemoModel.Models;
+@using Newtonsoft.Json;
+@inject HttpClient Http
+@using static System.Net.WebRequestMethods;
+@inject IAuthProductServices productServices;
+@inject NavigationManager NavigationManger;
+<PageTitle>UpdateProduct</PageTitle>
+<main id="main" class="main">
+    <section class="section">
+        <div class="row" style="margin-left:150px">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-body" style="">
+                        <h5 class="card-title" style="text-align:center;">Add Product</h5>
+                        <!-- General Form Elements -->
+                        <EditForm Model="@product" OnValidSubmit="UpdateProducts">
+                            <DataAnnotationsValidator />
+                            <ValidationMessage For="@(() => product.Name)" style="color:brown" />
+                            <div class="row mb-4">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputText @bind-Value="product.Name" type="text" class="form-control" placeholder="Product Name" />
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => product.Price)" style="color:brown" />
+                            <div class="row mb-4">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputText @bind-Value="product.Price" type="text" class="form-control" placeholder="Product Price" />
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputFile OnChange="LoadFiles" type="file" class="form-control" />
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => product.Description)" style="color:brown" />
+                            <div class="row mb-4">
+                                <div class="col-sm-10" style="width:100%">
+                                    <textarea @bind="product.Description" class="form-control" style="height: 100px" placeholder="Product Description"></textarea>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => product.Category)" style="color:brown" />
+                            <div class="row mb-4">
+                                <div class="col-sm-10" style="width:100%">
+                                    <select @bind="product.Category" class="form-select" aria-label="Default select example">
+                                        <option selected value="Starts">Starts</option>
+                                        <option value="BreakFast">BreakFast</option>
+                                        <option value="Dinner">Dinner</option>
+                                        <option value="Lunch">Lunch</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-sm-10" style="width:100%;text-align:center">
+                                    <button type="submit" class="btn btn-primary" style="padding-right: 30px;border-radius: 10px;padding-left: 30px;">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+</main>
+@code {
+    [Parameter]
+    public int Product_Id { get; set; }
+    private Product product = new Product();
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                product.ImageData = memoryStream.ToArray();
+            }
+        }
+    }
+    protected override async Task OnParametersSetAsync()
+    {
+        string apiUrl = "https://localhost:7070/api/Auth/List";
+        var response = await Http.GetAsync(apiUrl);
+        response.EnsureSuccessStatusCode();
+        var content = await response.Content.ReadAsStringAsync();
+        var productList = JsonConvert.DeserializeObject<List<Product>>(content);
+        product = productList.Where(x => x.ProductID == Product_Id).FirstOrDefault();
+    }
+    private async Task UpdateProducts()
+    {
+        await productServices.UpdateProduct(product);
+        NavigationManger.NavigateTo("/ListOfProduct");
+    }
+}

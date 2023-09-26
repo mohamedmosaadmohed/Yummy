@@ -1,0 +1,152 @@
+﻿@page "/formofproduct"
+@layout MainLayout
+@inject IAuthProductServices productServices;
+@inject NavigationManager NavigationManger;
+@using BlazorA.Service;
+@using DemoLibrary.Models;
+@using DemoModel.Models;
+
+<PageTitle>Add Product</PageTitle>
+<main id="main" class="main">
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body" style="">
+                        <h5 class="card-title" style="text-align:center;">Add Product</h5>
+                        <!-- General Form Elements -->
+                        <EditForm Model="@product" OnValidSubmit="HandleValidSubmitProduct">
+                            <DataAnnotationsValidator />
+                            <ValidationMessage For="@(() => product.Name)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputText @bind-Value="product.Name" type="text" class="form-control" placeholder="Product Name"/>
+                                </div>
+                            </div>
+                             <ValidationMessage For="@(() => product.Price)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputText @bind-Value="product.Price" type="text" class="form-control" placeholder="Product Price"/>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputFile OnChange="LoadFilesProduct" type="file" class="form-control"/>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => product.Description)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <textarea @bind="product.Description" class="form-control" style="height: 100px" placeholder="Product Description"></textarea>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => product.Category)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <select @bind="product.Category" class="form-select" aria-label="Default select example">
+                                        <option value="Starters">Starters</option>
+                                        <option value="BreakFast">BreakFast</option>
+                                        <option value="Dinner">Dinner</option>
+                                        <option value="Lunch">Lunch</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%;text-align:center">
+                                    <button type="submit" class="btn btn-primary" style="padding-right: 30px;border-radius: 10px;padding-left: 30px;">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+
+            </div>
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body" style="">
+                        <h5 class="card-title" style="text-align:center;">Add Chefs</h5>
+                        <!-- General Form Elements -->
+                        <EditForm Model="@chefsmodel" OnValidSubmit="HandleValidSubmitChef">
+                            <DataAnnotationsValidator />
+                            <ValidationMessage For="@(() => chefsmodel.Chef_Name)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputText @bind-Value="chefsmodel.Chef_Name" type="text" class="form-control" placeholder="Chef Name" />
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <InputFile OnChange="LoadFilesChef" type="file" class="form-control" />
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => chefsmodel.Chef_Description)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <textarea @bind="chefsmodel.Chef_Description" class="form-control" style="height: 100px" placeholder="Chef Description"></textarea>
+                                </div>
+                            </div>
+                            <ValidationMessage For="@(() => chefsmodel.Chef_Job)" style="color:brown" />
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%">
+                                    <select @bind="chefsmodel.Chef_Job" class="form-select" aria-label="Default select example">
+                                        <option value="Master Chef">Master Chef</option>
+                                        <option value="Patissier">Patissier</option>
+                                        <option value="Cook">Cook</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-sm-10" style="width:100%;text-align:center">
+                                    <button type="submit" class="btn btn-primary" style="padding-right: 30px;border-radius: 10px;padding-left: 30px;">
+                                        Save
+                                    </button>
+                                </div>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+@code {
+    private Product product = new Product();
+    private ChefsModel chefsmodel = new ChefsModel();
+
+    private async Task LoadFilesChef(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                chefsmodel.ImageChef = memoryStream.ToArray();
+            }
+        }
+    }
+    private async Task LoadFilesProduct(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                product.ImageData = memoryStream.ToArray();
+            }
+        }
+    }
+    private async Task HandleValidSubmitChef()
+    {
+        await productServices.AddNewChef(chefsmodel);
+        NavigationManger.NavigateTo("/Lists");
+    }
+    private async Task HandleValidSubmitProduct()
+    {
+        await productServices.checkAddNewProduct(product);
+        NavigationManger.NavigateTo("/ListOfProduct");
+    }
+}

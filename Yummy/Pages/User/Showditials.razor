@@ -1,0 +1,38 @@
+﻿@page "/ditials/{Product_Id:int}"
+@using BlazorA.Service;
+@using DemoModel.Models;
+@layout UserLayout
+@inject IAuthProductServices productServices;
+<div class="card" style="background:#f8f8f8;">
+    <div class="container">
+        @if (products != null && products.Count > 0)
+        {
+            @foreach (var product in products)
+            {
+                <div class="product">
+                    <img class="product-image" src="data:image/jpeg;base64,@Convert.ToBase64String(product.ImageData)" />
+                    <div class="product-details">
+                        <h2>@product.Name</h2>
+                        <p style="font-size:18px;">@product.Description</p>
+                        <p><strong style="font-size:18px;">@product.Price</strong></p>
+                        <button type="button" class="btn btn-outline-success">Add to Cart</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No products found.</p>
+        }
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int Product_Id { get; set; }
+    protected List<Product> products = new List<Product>();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        products = await productServices.GetProductbyId(Product_Id);
+    }
+}

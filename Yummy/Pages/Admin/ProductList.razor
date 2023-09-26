@@ -1,0 +1,101 @@
+﻿@page "/ListOfProduct"
+@layout MainLayout
+@using BlazorA.Service;
+@using DemoModel.Models;
+@inject NavigationManager NavigationManger;
+@inject IAuthProductServices productServices;
+@inject NavigationManager NavigationManger;
+<PageTitle>List Of Product</PageTitle>
+<main id="main" class="main">
+    <div class="pagetitle">
+        <h2>Data Tables</h2>
+        <nav>
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/Dashboard">Home</a></li>
+                <li class="breadcrumb-item">Tables</li>
+                <li class="breadcrumb-item active">Data</li>
+            </ol>
+        </nav>
+    </div>
+    <section class="section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Datatables</h5>
+                        <!-- Table with stripped rows -->
+                        <div class="table-responsive">
+                            <table class="table datatable">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">Description</th>
+                                        <th scope="col">Price</th>
+                                        <th scope="col">Catagory</th>
+                                        <th scope="col">Image</th>
+                                        <th scope="col">Update</th>
+                                        <th scope="col">Delete</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var pro in products)
+                                    {
+                                        <tr>
+                                            <td>@pro.Name</td>
+                                            <td>@pro.Description</td>
+                                            <td>@pro.Price</td>
+                                            <td>@pro.Category</td>
+                                            <td>
+                                                @if (pro.ImageData != null && pro.ImageData.Length > 0)
+                                                {
+                                                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(pro.ImageData)" alt="Product Image" style="width:70px; height:50px" />
+                                                }
+                                                else
+                                                {
+                                                    <span>No Image</span>
+                                                }
+                                            </td>
+                                            <th>
+                                                <button type="button" class="btn btn-primary"
+                                                @onclick="(async () => await NavigateToUpdateProduct(pro.ProductID))">
+                                                    Update
+                                                </button>
+                                            </th>
+                                           <th>
+                                                <button type="button" class="btn btn-danger"
+                                                @onclick="(async () => await DeleteProduct(pro.ProductID))">
+                                                    Delete
+                                                </button>
+                                            </th>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+@code {
+    protected List<Product> products = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetListProduct();
+    }
+    protected async Task GetListProduct()
+    {
+        products = await productServices.GetProduct();
+    }
+    protected async Task NavigateToUpdateProduct(int Id)
+    {
+        NavigationManger.NavigateTo($"Updateproduct/{Id}");
+    }
+    protected async Task DeleteProduct(int id)
+    {
+        await productServices.DeleteProduct(id);
+        await GetListProduct();
+    }
+}

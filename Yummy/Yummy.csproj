@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Pages\Admin\UpdateProduct.razor.css" />
+    <None Remove="Pages\User\Menus.razor.css" />
+    <None Remove="Pages\User\showditials.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Pages\Admin\UpdateProduct.razor.css" />
+    <Content Include="Pages\User\Menus.razor.css" />
+    <Content Include="Pages\User\showditials.razor.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazored.Toast" Version="4.1.0" />
+    <PackageReference Include="CurrieTechnologies.Razor.SweetAlert2" Version="5.5.0" />
+    <PackageReference Include="SOfCO.Helpers" Version="1.0.0" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,86 @@
+﻿@page "/login"
+@using BlazorA.Service;
+@using DemoModel.Models;
+@using TestAuthentcation.Authentcation;
+@using SOfCO.Helpers;
+@layout EmptyLayout
+@inject IAuthProductServices productServices;
+@inject NavigationManager NavigationManger;
+@inject AuthenticationStateProvider authStateProvider
+    <section class="sign-in" style="padding-top:30px">
+    <div class="container">
+        <div class="signin-content">
+            <div class="signin-image">
+                <figure><img src="assets/img/signin-image.jpg" alt="sing up image"></figure>
+                <a href="/register" class="signup-image-link" style="text-decoration:revert">Create an account</a>
+            </div>
+            <div class="signin-form">
+                <h2 class="form-title">Login</h2>
+                @if (!string.IsNullOrEmpty(emailErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="padding-top: 10px;padding-bottom: 10px;">
+                        @emailErrorMessage!
+                    </div>
+                }
+                 <EditForm Model="@login" OnValidSubmit="HandleValidSubmit" class="register-form" id="login-form">
+                     <DataAnnotationsValidator/>
+                        <ValidationMessage For="@(() => login.Email)" style="color:red" />
+                        <div class="form-group">
+                            <label for="your_name"><i class="zmdi zmdi-account material-icons-name"></i></label>
+                            <InputText type="text" @bind-Value="login.Email" id="your_name" name="your_name" placeholder="Your Name" spellcheck="false" data-ms-editor="true" />
+                        </div>
+                        <ValidationMessage For="@(() => login.Password)" style="color:red" />
+                        <div class="form-group">
+                            <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
+                            <InputText @bind-Value="login.Password" type="@((showPassword ? "text" : "password"))" id="your_pass" name="your_pass" placeholder="Password" />
+                            <span class="eye-icon" @onclick="TogglePasswordVisibility">
+                                <ion-icon name="@((showPassword ? "eye-outline" : "eye-off-outline"))"></ion-icon>
+                            </span>
+                        </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="remember-me" id="remember-me" class="agree-term"/>
+                        <label for="remember-me" class="label-agree-term"><span><span></span></span>Remember me</label>
+                    </div>
+                    <div class="form-group form-button"><input type="submit" name="signin" id="signin" class="form-submit" value="Log in"></div>
+                </EditForm>
+                <div class="social-login">
+                    <span class="social-label">Or login with</span>
+                    <ul class="socials">
+                        <li><a href="#"><i class="display-flex-center zmdi zmdi-facebook"></i></a></li>
+                        <li><a href="#"><i class="display-flex-center zmdi zmdi-twitter"></i></a></li>
+                        <li><a href="#"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+@code{
+    private bool showPassword = false;
+    private string emailErrorMessage = "";
+    private LoginModel login = new LoginModel();
+    private void TogglePasswordVisibility()
+    {
+        showPassword = !showPassword;
+    }
+    private async Task HandleValidSubmit()
+    {
+        var userAccount = new LoginModel();
+        userAccount = await productServices.CheckLogin(login.Email);
+
+        if (userAccount == null && PasswordHelper.IsValidPassword(userAccount.Password,login.Password) )
+        {
+            emailErrorMessage = "Invalid User Name or Password";
+            return;
+        }
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(new UserSession
+            {
+                UserName = userAccount.Email,
+                Role = userAccount.Role,
+                FullName=userAccount.FullName
+            });
+
+        NavigationManger.NavigateTo("/", true);
+    }
+}

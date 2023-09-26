@@ -1,0 +1,112 @@
+﻿@page "/register"
+@using BlazorA.Service;
+@using DemoModel.Models;
+@using TestAuthentcation.Authentcation;
+@inject IAuthProductServices productServices;
+@inject NavigationManager NavigationManger;
+@layout EmptyLayout
+@inject NavigationManager NavigationManger;
+@inject AuthenticationStateProvider authStateProvider
+<PageTitle>Register</PageTitle>
+<section class="signup" style="padding-top:30px">
+    <div class="container">
+        <div class="signup-content">
+            <div class="signup-form">
+                <h2 class="form-title">Register</h2>
+                @if (!string.IsNullOrEmpty(alertMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="padding-top: 10px;padding-bottom: 10px;">
+                        @alertMessage!
+                    </div>
+                }
+                @if (!string.IsNullOrEmpty(emailErrorMessage))
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert" style="padding-top: 10px;padding-bottom: 10px;">
+                        @emailErrorMessage!
+                    </div>
+                }
+                <EditForm Model="@newUser" OnValidSubmit="HandleValidSubmit" class="register-form" id="register-form">
+                    <div class="form-group">
+                        <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
+                        <InputText type="text" name="name" id="name" placeholder="Your Name" @bind-Value="newUser.Name"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="email"><i class="zmdi zmdi-email"></i></label>
+                        <input type="email" name="email" id="email" placeholder="Your Email" @bind-value="newUser.Email"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="pass"><i class="zmdi zmdi-lock"></i></label>
+                        <InputText type="@((showPassword1 ? "text" : "password"))" name="pass" id="pass" placeholder="Password" @bind-Value="newUser.Password" />
+                        <span class="eye-icon" @onclick="TogglePasswordVisibility1">
+                            <ion-icon name="@((showPassword1 ? "eye-outline" : "eye-off-outline"))"></ion-icon>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <label for="re-pass"><i class="zmdi zmdi-lock-outline"></i></label>
+                        <InputText type="@((showPassword2 ? "text" : "password"))" name="re_pass" id="re_pass" placeholder="Repeat your password" @bind-Value="RetypePassword" />
+                        <span class="eye-icon" @onclick="TogglePasswordVisibility2">
+                            <ion-icon name="@((showPassword2 ? "eye-outline" : "eye-off-outline"))"></ion-icon>
+                        </span>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" name="agree-term" id="agree-term" class="agree-term" @onclick="ToggleIsActive">
+                        <label for="agree-term" class="label-agree-term"><span><span></span></span>I agree all statements in  <a href="#" class="term-service">Terms of service</a></label>
+                    </div>
+                    <div class="form-group form-button"><input type="submit" name="signup" id="signup" class="form-submit" value="Register"></div>
+                </EditForm>
+            </div>
+            <div class="signup-image">
+                <figure><img src="assets/img/signup-image.jpg" alt="sing up image"></figure>
+                <a href="/login" class="signup-image-link" style="text-decoration:revert">I am already member</a>
+            </div>
+        </div>
+    </div>
+</section>
+@code{
+    private bool showPassword1 = false;
+    private bool showPassword2 = false;
+    public string RetypePassword;
+    public string alertMessage = "";
+    private string emailErrorMessage = "";
+    public bool isActive = false;
+    private RegisterationUser newUser = new RegisterationUser();
+
+    private void TogglePasswordVisibility1()
+    {
+        showPassword1 = !showPassword1;
+    }
+    private void TogglePasswordVisibility2()
+    {
+        showPassword2 = !showPassword2;
+    }
+    private void ToggleIsActive()
+    {
+        isActive = !isActive;
+    }
+    private async Task HandleValidSubmit()
+    {
+        newUser.AgreeAllStatement = isActive;
+        if (RetypePassword != newUser.Password)
+        {
+            alertMessage = "Passwords do not matchs";
+            return;
+        }
+
+        bool isEmailExists = await productServices.AddNewUser(newUser);
+
+        if (isEmailExists)
+        {
+            emailErrorMessage = "Email is already registered";
+            return;
+        }
+        var customAuthStateProvider = (CustomAuthenticationStateProvider)authStateProvider;
+        await customAuthStateProvider.UpdateAuthenticationState(new UserSession
+            {
+                UserName = newUser.Email,
+                Role = "User"
+            });
+
+        NavigationManger.NavigateTo("/", true);
+
+    }
+}
