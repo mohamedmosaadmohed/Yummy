@@ -27,6 +27,7 @@ namespace TestAuthentcation.Authentcation
                     new Claim(ClaimTypes.Name, userSession.UserName),
                     new Claim(ClaimTypes.Role, userSession.Role),
                     new Claim("FullName", userSession.FullName),
+                    new Claim("Image", Convert.ToBase64String(userSession.Image))
                 }, "CustomAuth"));
                 return await Task.FromResult(new AuthenticationState(claimsPrincipal));
             }
