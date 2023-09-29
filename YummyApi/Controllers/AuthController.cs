@@ -1,10 +1,8 @@
 ﻿using Blazor.Shared.Models;
 using Blazor.Shared.Services;
-using DemoLibrary.Models;
-using DemoModel.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using YummyApi.Models;
 
 namespace Blazor.Server.Controller
 {
@@ -148,53 +146,35 @@ namespace Blazor.Server.Controller
                 return BadRequest(ex.Message);
             }
         }
-        //[HttpGet]
-        //[Route("list")]
-        //public async Task<ActionResult> GetStudentsList()
-        //{
-        //   List<StudentEntity> students = new List<StudentEntity>();
-        //    students= (List<StudentEntity>)await _studentServices.GetAllStudent();
-        //    return Ok(students);
-        //}
-        //[HttpPost]
-        //[Route("add")]
-        //public async Task<ActionResult> AddNewStudent(StudentEntity studentEntity)
-        //{
-
-        //    try
-        //    {
-        //        await _studentServices.AddStudent(studentEntity);
-        //        return Ok();
-        //    }
-        //    catch(Exception ex)
-        //    {
-        //        return BadRequest();
-        //    }
-        //}
-
-        //[HttpDelete]
-        //[Route("Delete/{StudentID}")]
-        //public async Task<ActionResult> DeleteStudent(int StudentID) 
-        //{
-        //    await _studentServices.DeleteStudent(StudentID);
-        //    return Ok();
-        //}
-
-
-        //[HttpPut]
-        //[Route("Update")]
-        //public async Task<ActionResult> UpdateStudent(StudentEntity studentEntity)
-        //{
-        //    try
-        //    {
-        //       await _studentServices.UpdateStudent(studentEntity);
-        //        return Ok();
-        //    }
-        //    catch(Exception ex) 
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
+        [HttpPost]
+        [Route("profile")]
+        public async Task<ActionResult> CompleteProfile(Addrees addrees)
+        {
+            try
+            {
+                await _productServices.AddCompleteProfile(addrees);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpGet]
+        [Route("Address{Id}")]
+        public async Task<ActionResult> GetAddress(int Id)
+        {
+            try
+            {
+                List<Addrees> addresses = new List<Addrees>();
+                addresses = (List<Addrees>)await _productServices.GetAddressForUser(Id);
+                return Ok(addresses);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
     }
 }

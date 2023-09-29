@@ -103,7 +103,8 @@
         await customAuthStateProvider.UpdateAuthenticationState(new UserSession
             {
                 UserName = newUser.Email,
-                Role = "User"
+                Role = "User",
+                FullName=newUser.Name
             });
 
         NavigationManger.NavigateTo("/", true);

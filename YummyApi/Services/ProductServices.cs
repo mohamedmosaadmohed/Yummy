@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using System.Linq;
-using DemoModel.Models;
 using SOfCO.Helpers;
+using YummyApi.Models;
 using Blazor.Shared.Models;
-using DemoLibrary.Models;
 
 namespace Blazor.Shared.Services
 {
@@ -44,12 +43,13 @@ namespace Blazor.Shared.Services
             bool emailExists = (bool)outputParameter.Value;
             return emailExists;
         }
-        public async Task<LoginModel> GETLoginForUser(string Email)
+        public async Task<YummyApi.Models.LoginModel> GETLoginForUser(string Email)
         {
             string emailInDataBase="";
             string PasswordInDataBase="";
             string Role="";
             string FullName="";
+            int Id;
             SqlCommand cmd = new SqlCommand("SP_CheckLogin");
             cmd.CommandType = CommandType.StoredProcedure;
             cmd.Parameters.AddWithValue("@Email", Email);
@@ -57,6 +57,7 @@ namespace Blazor.Shared.Services
             var result= await sql.ExecuteQueryAsync(cmd);
             foreach( DataRow row in result.Rows)
             {
+                Id= (int)row["ID"];
                 emailInDataBase= row["Email"] as string ?? "";
                 PasswordInDataBase= row["Password"] as string ?? "";
                 FullName = row["Name"] as string ?? "";
@@ -66,8 +67,9 @@ namespace Blazor.Shared.Services
                     Email = emailInDataBase,
                     Password = PasswordInDataBase,
                     FullName= FullName,
-                    Role = Role
-                };
+                    Role = Role,
+                    User_Id = Id
+               };
                 return loginModel;
             }
             return null;
@@ -178,59 +180,47 @@ namespace Blazor.Shared.Services
             }
             return listOfProduct;
         }
+        public async Task AddCompleteProfile(Addrees address)
+        {
+            SqlCommand cmd = new SqlCommand("SP_CompeleteProfile");
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Image",address.ImageData);
+            cmd.Parameters.AddWithValue("@Country", address.Country);
+            cmd.Parameters.AddWithValue("@Street", address.Street);
+            cmd.Parameters.AddWithValue("@ZipCode", address.ZipCode);
+            cmd.Parameters.AddWithValue("@User_Id", address.User_ID);
+            var sql = _db.GetDatabase();
+            await sql.ExecuteNonQueryAsync(cmd);
+        }
+        public async Task<IEnumerable<Addrees>> GetAddressForUser(int ID)
+        {
+            SqlCommand cmd = new SqlCommand("SP_GetAddressForUser");
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Id_user", ID);
+            var sql = _db.GetDatabase();
+            var result = await sql.ExecuteQueryAsync(cmd);
+            List<Addrees> addresses = new List<Addrees>();
 
-        //public async Task<IEnumerable<StudentEntity>> GetAllStudent()
-        //{
-        //	SqlCommand cmd = new SqlCommand("GetAllStudentRecord");
-        //	cmd.CommandType = CommandType.StoredProcedure;
-        //	var sql = _db.GetDatabase();
-        //	var result = await sql.ExecuteQueryAsync(cmd);
-        //	List<StudentEntity> listOfStudent = new List<StudentEntity>();
+            foreach (DataRow row in result.Rows)
+            {
+                Addrees addr = new Addrees();
+                addr.AddreesID = Convert.ToInt32(row["Id"]);
+                addr.Country = row["Country"] as string ?? "";
+                addr.Street = row["Street"] as string ?? "";
+                addr.ZipCode = row["ZipCode"] as string ?? "";
+                addr.ImageData = (byte[])row["Image"];
 
-        //	foreach (DataRow row in result.Rows)
-        //	{
-        //		var student = new StudentEntity();
-        //		student.StudentId = Convert.ToInt32(row["StudentID"]);
-        //		student.FirstName = row["FirstName"] as string ?? "";
-        //		student.LastName = row["LastName"] as string ?? "";
-        //		student.Email = row["Email"] as string ?? "";
-        //		student.Gender = row["Gender"] as string ?? "";
-        //		student.CreateOn = Convert.ToDateTime(row["CreatedOn"]);
-        //		listOfStudent.Add(student);
-        //	}
-
-        //	return listOfStudent;
-        //}  //done
-        //public async Task AddStudent(StudentEntity student)
-        //{
-        //	SqlCommand cmd = new SqlCommand("AddNewStudent");
-        //	cmd.CommandType = CommandType.StoredProcedure;
-        //	cmd.Parameters.AddWithValue("@FirstName", student.FirstName);
-        //	cmd.Parameters.AddWithValue("@LastName", student.LastName);
-        //	cmd.Parameters.AddWithValue("@Email", student.Email);
-        //	cmd.Parameters.AddWithValue("@Gender", student.Gender);
-        //	var sql=_db.GetDatabase();
-        //	await sql.ExecuteNonQueryAsync(cmd);
-        //}  //done
-        //public async Task UpdateStudent(StudentEntity student)
-        //{
-        //	SqlCommand cmd = new SqlCommand("UpdateStudentRcord");
-        //	cmd.CommandType = CommandType.StoredProcedure;
-        //	cmd.Parameters.AddWithValue("@StudentID", student.StudentId);
-        //	cmd.Parameters.AddWithValue("@FirstName", student.FirstName);
-        //	cmd.Parameters.AddWithValue("@LastName", student.LastName);
-        //	cmd.Parameters.AddWithValue("@Email", student.Email);
-        //	cmd.Parameters.AddWithValue("@Gender", student.Gender);
-        //	var sql = _db.GetDatabase();
-        //	await sql.ExecuteNonQueryAsync(cmd);
-        //      }  
-        // public async Task DeleteStudent(int? stdId)
-        //{
-        //	SqlCommand cmd = new SqlCommand("DeletStudentRecord");
-        //	cmd.CommandType = CommandType.StoredProcedure;
-        //	cmd.Parameters.AddWithValue("@StudentID",stdId);
-        //	var sql = _db.GetDatabase();
-        //	await sql.ExecuteNonQueryAsync(cmd);
-        //      }
+                addresses.Add(addr);
+            }
+            return addresses;
+        }
+        public async Task<DataTable> GetEmptyImage()
+        {
+            SqlCommand cmd = new SqlCommand("SP_GetImage");
+            cmd.CommandType = CommandType.StoredProcedure;
+            var sql = _db.GetDatabase();
+            var result= await sql.ExecuteQueryAsync(cmd);
+            return result;
+        }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DemoLibrary.Models;
 using DemoModel.Models;
+using Yummy.Models;
 
 namespace BlazorA.Service
 {
@@ -17,5 +18,7 @@ namespace BlazorA.Service
         Task<bool> AddNewChef(ChefsModel chefsmodel);
         Task<List<Product>> GetCatagoryWithName(string NameOfProduct);
         Task<List<Product>> GetProductbyId(int? Id);
+        Task<bool> Completeprofile(Address address);
+        Task<List<Address>> GetAddressforuser(int Id);
     }
 }

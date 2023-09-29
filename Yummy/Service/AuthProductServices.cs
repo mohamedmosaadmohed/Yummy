@@ -2,6 +2,7 @@
 using DemoModel.Models;
 using Microsoft.AspNetCore.Identity;
 using SOfCO.Helpers;
+using Yummy.Models;
 
 namespace BlazorA.Service
 {
@@ -30,17 +31,17 @@ namespace BlazorA.Service
         }
         public async Task<LoginModel> CheckLogin(string Email)
         {
-            var response = new LoginModel();
-            response = await httpClient.GetFromJsonAsync<LoginModel>($"api/Auth/Checklogin{Email}");
+            var response = await httpClient.GetFromJsonAsync<LoginModel>($"api/Auth/Checklogin{Email}");
             if (response != null)
             {
                 return response;
             }
             else
             {
-                throw new Exception("Failed to retrieve data from the API.");
+                return null;
             }
         }
+
         public async Task<bool> checkAddNewProduct(Product product)
         {
             HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/Auth/product", product);
@@ -113,18 +114,33 @@ namespace BlazorA.Service
                 throw new Exception("Failed to retrieve data from the API.");
             }
         }
+        public async Task<bool> Completeprofile(Address address)
+        {
+            HttpResponseMessage response = await httpClient.PostAsJsonAsync("api/Auth/profile", address);
 
-        //public async Task<List<StudentEntity>> GetStudents()
-        //{
-        //    return await httpClient.GetFromJsonAsync<List<StudentEntity>>("api/StudentOperation/list");
-        //}
-        //public async Task DeleteStudent(int studentId)
-        //{
-        //    await httpClient.DeleteAsync($"api/StudentOperation/Delete/{studentId}");
-        //}
-        //public async Task AddNewStudent(StudentEntity student)
-        //{
-        //    await httpClient.PostAsJsonAsync("api/StudentOperation/Add", student);
-        //}
+            if (response.IsSuccessStatusCode)
+            {
+                return false;
+            }
+            else
+            {
+
+                return true;
+            }
+        }
+        public async Task<List<Address>> GetAddressforuser(int Id)
+        {
+            var response = await httpClient.GetFromJsonAsync<List<Address>>($"api/Auth/Address{Id}");
+
+            if (response != null && response.Count > 0)
+            {
+                return response;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
     }
 }

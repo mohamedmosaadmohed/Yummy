@@ -1,4 +1,9 @@
 ﻿@page "/profile"
+@using BlazorA.Service;
+@using Yummy.Models;
+@inject IAuthProductServices productServices;
+@inject NavigationManager NavigationManager;
+@inject AuthenticationStateProvider AuthenticationStateProvider // Inject the AuthenticationStateProvider
 @layout UserLayout
 <PageTitle>Profile</PageTitle>
 
@@ -9,28 +14,41 @@
                 <div class="card">
                     <div class="card-body pt-3">
                         <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                            @if (Isexist == true)
+                            {
+                                @foreach (var pr in address2)
+                                {
+                                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(pr.ImageData)" alt="Profile" class="rounded-circle" style="width:130px; height:150px">
+                                }
+                            }
+                            else
+                            {
+                                <img src="assets/img/download.jpeg" alt="Profile" class="rounded-circle" style="width:130px">
+                            }
                             <AuthorizeView>
                                 <Authorized>
-                                    <img src="assets/img/EmptyProfile.webp" alt="Profile" class="rounded-circle" style="width:130px">
-                                    <img src="data:image/jpeg;base64,@context.User.FindFirst("Image")?.Value)" class="menu-img img-fluid" alt="Resturant Product" style="width:130px">
                                     <h2>@context.User.FindFirst("FullName")?.Value</h2>
                                 </Authorized>
                             </AuthorizeView>
                         </div>
-                        <ul class="nav nav-tabs nav-tabs-bordered">
+                        <ul class="nav nav-tabs nav-tabs-bordered" style="font-size:17px">
 
                             <li class="nav-item">
                                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
                             </li>
-
+                            @if (Isexist == false)
+                            {
+                                <li class="nav-item">
+                                    <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-Add">Complete Profile</button>
+                                </li>
+                            }
                             <li class="nav-item">
                                 <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
                             </li>
                         </ul>
                         <div class="tab-content pt-2" style="padding-bottom:15px;font-size:17px;">
-
                             <div class="tab-pane fade show active profile-overview" id="profile-overview">
-                                <h5 class="card-title">Profile Details</h5>
+                                <h5 class="card-title" style="padding:10px 0px 3px 0px;font-size:22px;">Profile Details</h5>
                                 <AuthorizeView>
                                     <Authorized>
                                         <div class="row">
@@ -43,29 +61,64 @@
                                         </div>
                                     </Authorized>
                                 </AuthorizeView>
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Country</div>
-                                    <div class="col-lg-9 col-md-8">USA</div>
-                                </div>
+                                @if (Isexist == true)
+                                {
+                                    @foreach (var pro in address2)
+                                    {
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-4 label">Country</div>
+                                            <div class="col-lg-9 col-md-8">@pro.Country</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-4 label">Street</div>
+                                            <div class="col-lg-9 col-md-8">@pro.Street</div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-lg-3 col-md-4 label">Zip Code</div>
+                                            <div class="col-lg-9 col-md-8">@pro.ZipCode</div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                            <div class="tab-pane fade profile-edit pt-3" id="profile-Add">
+                                <!-- Profile Add Form -->
+                                <EditForm Model="@address" OnValidSubmit="HandleValidSubmit">
+                                    <div class="row mb-3">
+                                        <div class="col-md-8 col-lg-9">
+                                            <img src="assets/img/EmptyProfile.webp" alt="Profile" style="height:100px">
+                                            <div class="pt-2">
+                                                <InputFile OnChange="LoadFiles" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></InputFile>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
 
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Address</div>
-                                    <div class="col-lg-9 col-md-8">A108 Adam Street, New York, NY 535022</div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-lg-3 col-md-4 label">Phone</div>
-                                    <div class="col-lg-9 col-md-8">(436) 486-3538 x29071</div>
-                                </div>
+                                        <div class="col-md-8 col-lg-9">
+                                            <InputText @bind-Value="address.Country" name="country" type="text" class="form-control" placeholder="Country" id="country" />
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-8 col-lg-9">
+                                            <InputText @bind-Value="address.Street" name="Street" type="text" class="form-control" placeholder="Street" id="Street" />
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-8 col-lg-9">
+                                            <InputText @bind-Value="address.ZipCode" name="zipcode" type="text" class="form-control" placeholder="Zip code" id="zipcode" />
+                                        </div>
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </EditForm><!-- End Profile Add Form -->
                             </div>
                             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-
                                 <!-- Profile Edit Form -->
                                 <form>
                                     <div class="row mb-3">
                                         <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img src="assets/img/profile-img.jpg" alt="Profile">
+                                            <img src="assets/img/download.jpeg" alt="Profile">
                                             <div class="pt-2">
                                                 <a href="#" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></a>
                                                 <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i class="bi bi-trash"></i></a>
@@ -76,14 +129,14 @@
                                     <div class="row mb-3">
                                         <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="fullName" type="text" class="form-control" id="fullName" value="Kevin Anderson">
+                                            <input name="fullName" type="text" class="form-control" id="fullName">
                                         </div>
                                     </div>
 
                                     <div class="row mb-3">
                                         <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea>
+                                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatdit. Fuga sequi sed ea saepe at unde.</textarea>
                                         </div>
                                     </div>
 
@@ -114,13 +167,6 @@
                                             <input name="address" type="text" class="form-control" id="Address" value="A108 Adam Street, New York, NY 535022">
                                         </div>
                                     </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Phone" class="col-md-4 col-lg-3 col-form-label">Phone</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="phone" type="text" class="form-control" id="Phone" value="(436) 486-3538 x29071">
-                                        </div>
-                                    </div>
                                     <div class="text-center">
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </div>
@@ -135,3 +181,58 @@
         </div>
     </section>
 </main>
+@code {
+    [Parameter]
+    public string Email { get; set; }
+    private List<Address> address2 = new List<Address>();
+    private Address address = new Address();
+    private LoginModel userAccount = new LoginModel();
+    bool Isexist;
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            Email = user.Identity.Name;
+        }
+        Isexist = await GetListofAddress();
+    }
+    protected async Task<bool> GetListofAddress()
+    {
+        userAccount = await productServices.CheckLogin(Email);
+        if (userAccount != null)
+        {
+            address2 = await productServices.GetAddressforuser(userAccount.User_Id);
+
+            if (address2 == null)
+                return false;
+            else
+                return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                address.ImageData = memoryStream.ToArray();
+            }
+        }
+    }
+    private async Task HandleValidSubmit()
+    {
+        address.User_ID = userAccount.User_Id;
+        await productServices.Completeprofile(address);
+        NavigationManager.NavigateTo("/home");
+    }
+}

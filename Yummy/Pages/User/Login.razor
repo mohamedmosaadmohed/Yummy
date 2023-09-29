@@ -1,8 +1,8 @@
 ﻿@page "/login"
 @using BlazorA.Service;
-@using DemoModel.Models;
 @using TestAuthentcation.Authentcation;
 @using SOfCO.Helpers;
+@using Yummy.Models;
 @layout EmptyLayout
 @inject IAuthProductServices productServices;
 @inject NavigationManager NavigationManger;
@@ -57,18 +57,24 @@
 </section>
 @code{
     private bool showPassword = false;
-    private string emailErrorMessage = "";
+    private string emailErrorMessage="";
     private LoginModel login = new LoginModel();
+    private LoginModel userAccount = new LoginModel();
     private void TogglePasswordVisibility()
     {
         showPassword = !showPassword;
     }
     private async Task HandleValidSubmit()
     {
-        var userAccount = new LoginModel();
         userAccount = await productServices.CheckLogin(login.Email);
 
-        if (userAccount == null && PasswordHelper.IsValidPassword(userAccount.Password,login.Password) )
+        if (userAccount == null)
+        {
+            emailErrorMessage = "Invalid User Name or Password";
+            return;
+        }
+
+        if (!PasswordHelper.IsValidPassword(userAccount.Password, login.Password))
         {
             emailErrorMessage = "Invalid User Name or Password";
             return;

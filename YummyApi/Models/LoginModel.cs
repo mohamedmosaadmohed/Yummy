@@ -5,10 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DemoModel.Models
+namespace YummyApi.Models
 {
     public class LoginModel
     {
+        public int User_Id { get; set; }
         [Required(ErrorMessage = "Email is requied")]
         public string Email { get; set; } = string.Empty;
         [Required(ErrorMessage = "Password is requied")]

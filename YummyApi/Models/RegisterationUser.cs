@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DemoModel.Models
+namespace YummyApi.Models
 {
     public class RegisterationUser
     {

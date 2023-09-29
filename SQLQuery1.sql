@@ -6,7 +6,7 @@ Name NVARCHAR(200),
 Email NVARCHAR(200),
 Password NVARCHAR(200),
 Role NVARCHAR(200) DEFAULT 'User',
-AgreeAllStatement bit
+AgreeAllStatement bit,
 )
 -----------------------------------------
 Create Proc SP_Registeration
@@ -38,7 +38,7 @@ Create Proc SP_CheckLogin(
 )
 AS
 Begin
-SELECT Email,Password,Role From Registeration 
+SELECT ID,Email,Password,Name,Role From Registeration 
 Where Email=@Email
 End
 -----------------------------------------------------------
@@ -153,3 +153,36 @@ Where Price=@Price
 AND Category_name=@Category_name
 End
 ------------------------------------------------------------------------------
+Create Table CompeleteProfile(
+Id int primary Key identity(1,1),
+Image VarBinary(Max),
+Country NVARCHAR(200),
+Street NVARCHAR(200),
+ZipCode NVARCHAR(200),
+User_Id int,
+CONSTRAINT FG Foreign key (User_Id) References Registeration(ID)
+);
+-----------------------------------------------------------------------------
+Create Proc SP_CompeleteProfile(
+@Image VarBinary(Max),
+@Country NVARCHAR(200),
+@Street NVARCHAR(200),
+@ZipCode NVARCHAR(200),
+@User_Id int
+)
+AS
+Begin
+INSERT INTO CompeleteProfile (Image,Country,Street,ZipCode,User_Id) Values (@Image,@Country,
+@Street,@ZipCode,@User_Id)
+End
+-----------------------------------------------------------------------------
+CReate proc SP_GetAddressForUser
+(
+@Id_user int
+)
+As
+Begin
+select * from CompeleteProfile
+Where User_Id=@Id_user
+End
+----------------------------------------------------------------------------
