@@ -6,9 +6,6 @@ namespace BlazorA.Service
 {
     public interface IAuthProductServices
     {
-        //Task<List<StudentEntity>> GetStudents();
-        //Task DeleteStudent(int studentId);
-        //Task AddNewStudent(StudentEntity student);
         Task<bool> AddNewUser(RegisterationUser registerationUser);
         Task<LoginModel> CheckLogin(string Email);
         Task<bool> checkAddNewProduct(Product product);
@@ -20,5 +17,7 @@ namespace BlazorA.Service
         Task<List<Product>> GetProductbyId(int? Id);
         Task<bool> Completeprofile(Address address);
         Task<List<Address>> GetAddressforuser(int Id);
+        Task UpdateProfile(Address address);
+        Task<List<Product>> Filterbyprice(Product products);
     }
 }

@@ -119,7 +119,7 @@ namespace Blazor.Shared.Services
         {
             SqlCommand cmd = new SqlCommand("SP_UpdateProduct");
             cmd.CommandType = CommandType.StoredProcedure;
-            cmd.Parameters.AddWithValue("@@product_Id", product.ProductID);
+            cmd.Parameters.AddWithValue("@product_Id", product.ProductID);
             cmd.Parameters.AddWithValue("@Name", product.Name);
             cmd.Parameters.AddWithValue("@Price", product.Price);
             cmd.Parameters.AddWithValue("@Description", product.Description);
@@ -221,6 +221,40 @@ namespace Blazor.Shared.Services
             var sql = _db.GetDatabase();
             var result= await sql.ExecuteQueryAsync(cmd);
             return result;
+        }
+        public async Task UpdateCompleteProfile(Addrees addrees)
+        {
+            SqlCommand cmd = new SqlCommand("SP_UpdateCompleteProfile");
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Image", addrees.ImageData);
+            cmd.Parameters.AddWithValue("@Country", addrees.Country);
+            cmd.Parameters.AddWithValue("@Street", addrees.Street);
+            cmd.Parameters.AddWithValue("@ZipCode", addrees.ZipCode);
+            cmd.Parameters.AddWithValue("@User_Id", addrees.User_ID);
+            var sql = _db.GetDatabase();
+            await sql.ExecuteNonQueryAsync(cmd);
+        }
+        public async Task<IEnumerable<Product>> FilterByPrice(Product products)
+        {
+            SqlCommand cmd = new SqlCommand("FilterByPrice");
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Price", products.Price);
+            cmd.Parameters.AddWithValue("@Category_name", products.Category);
+            var sql = _db.GetDatabase();
+            var result = await sql.ExecuteQueryAsync(cmd);
+            List<Product> listOfProduct = new List<Product>();
+
+            foreach (DataRow row in result.Rows)
+            {
+                var product = new Product();
+                product.ProductID = Convert.ToInt32(row["Id_Product"]);
+                product.Name = row["Name"] as string ?? "";
+                product.Price = row["Price"] as string ?? "";
+                product.Description = row["Description"] as string ?? "";
+                product.ImageData = (byte[])row["Image"];
+                listOfProduct.Add(product);
+            }
+            return listOfProduct;
         }
     }
 }

@@ -35,7 +35,6 @@ namespace Blazor.Server.Controller
                 return BadRequest(ex.Message);
             }
         }
-
         [HttpGet]
         [Route("Checklogin{Email}")]
         public async Task<ActionResult<LoginModel>> LoginForUser(string Email)
@@ -87,7 +86,6 @@ namespace Blazor.Server.Controller
             await _productServices.DeleteProduct(ProductID);
             return Ok();
         }
-
         [HttpPut]
         [Route("Update")]
         public async Task<ActionResult> UpdateStudent(Product product)
@@ -175,6 +173,19 @@ namespace Blazor.Server.Controller
                 return BadRequest(ex.Message);
             }
         }
-
+        [HttpPut]
+        [Route("Update-profile")]
+        public async Task<ActionResult> UpdateCompleteProfile(Addrees addrees)
+        {
+            try
+            {
+                await _productServices.UpdateCompleteProfile(addrees);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

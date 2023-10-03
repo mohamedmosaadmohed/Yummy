@@ -3,7 +3,7 @@
 @using Yummy.Models;
 @inject IAuthProductServices productServices;
 @inject NavigationManager NavigationManager;
-@inject AuthenticationStateProvider AuthenticationStateProvider // Inject the AuthenticationStateProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @layout UserLayout
 <PageTitle>Profile</PageTitle>
 
@@ -43,7 +43,7 @@
                                 </li>
                             }
                             <li class="nav-item">
-                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Edit Profile</button>
+                                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-Edit">Edit Profile</button>
                             </li>
                         </ul>
                         <div class="tab-content pt-2" style="padding-bottom:15px;font-size:17px;">
@@ -85,9 +85,9 @@
                                 <EditForm Model="@address" OnValidSubmit="HandleValidSubmit">
                                     <div class="row mb-3">
                                         <div class="col-md-8 col-lg-9">
-                                            <img src="assets/img/EmptyProfile.webp" alt="Profile" style="height:100px">
+                                            <img src="assets/img/download.jpeg" alt="Profile" class="rounded-circle" style="width:130px">
                                             <div class="pt-2">
-                                                <InputFile OnChange="LoadFiles" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></InputFile>
+                                                <InputFile OnChange="LoadFilesComplete" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></InputFile>
                                             </div>
                                         </div>
                                     </div>
@@ -112,65 +112,47 @@
                                     </div>
                                 </EditForm><!-- End Profile Add Form -->
                             </div>
-                            <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-                                <!-- Profile Edit Form -->
-                                <form>
+                            <div class="tab-pane fade profile-edit pt-3" id="profile-Edit">
+                                <!-- Profile Add Form -->
+                                <EditForm Model="@addressupdate" OnValidSubmit="UpdateProfile">
                                     <div class="row mb-3">
-                                        <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <img src="assets/img/download.jpeg" alt="Profile">
+                                            @if (Isexist == true)
+                                            {
+                                                @foreach (var pr in address2)
+                                                {
+                                                    <img src="data:image/jpeg;base64,@Convert.ToBase64String(pr.ImageData)" alt="Profile" class="rounded-circle" style="width:130px; height:150px">
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <img src="assets/img/download.jpeg" alt="Profile" class="rounded-circle" style="width:130px">
+                                            }
                                             <div class="pt-2">
-                                                <a href="#" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></a>
-                                                <a href="#" class="btn btn-danger btn-sm" title="Remove my profile image"><i class="bi bi-trash"></i></a>
+                                                <InputFile OnChange="LoadFilesUpdate" class="btn btn-primary btn-sm" title="Upload new profile image"><i class="bi bi-upload"></i></InputFile>
                                             </div>
                                         </div>
                                     </div>
-
                                     <div class="row mb-3">
-                                        <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Full Name</label>
+
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="fullName" type="text" class="form-control" id="fullName">
+                                            <InputText @bind-Value="addressupdate.Country" name="country" type="text" class="form-control" placeholder="Country" id="country" />
                                         </div>
                                     </div>
-
                                     <div class="row mb-3">
-                                        <label for="about" class="col-md-4 col-lg-3 col-form-label">About</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <textarea name="about" class="form-control" id="about" style="height: 100px">Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatdit. Fuga sequi sed ea saepe at unde.</textarea>
+                                            <InputText @bind-Value="addressupdate.Street" name="Street" type="text" class="form-control" placeholder="Street" id="Street" />
                                         </div>
                                     </div>
-
                                     <div class="row mb-3">
-                                        <label for="company" class="col-md-4 col-lg-3 col-form-label">Company</label>
                                         <div class="col-md-8 col-lg-9">
-                                            <input name="company" type="text" class="form-control" id="company" value="Lueilwitz, Wisoky and Leuschke">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Job" class="col-md-4 col-lg-3 col-form-label">Job</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="job" type="text" class="form-control" id="Job" value="Web Designer">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Country" class="col-md-4 col-lg-3 col-form-label">Country</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="country" type="text" class="form-control" id="Country" value="USA">
-                                        </div>
-                                    </div>
-
-                                    <div class="row mb-3">
-                                        <label for="Address" class="col-md-4 col-lg-3 col-form-label">Address</label>
-                                        <div class="col-md-8 col-lg-9">
-                                            <input name="address" type="text" class="form-control" id="Address" value="A108 Adam Street, New York, NY 535022">
+                                            <InputText @bind-Value="addressupdate.ZipCode" name="zipcode" type="text" class="form-control" placeholder="Zip code" id="zipcode" />
                                         </div>
                                     </div>
                                     <div class="text-center">
                                         <button type="submit" class="btn btn-primary">Save Changes</button>
                                     </div>
-                                </form><!-- End Profile Edit Form -->
+                                </EditForm><!-- End Profile Add Form -->
                             </div>
                             <div class="tab-pane fade pt-3" id="profile-settings">
                             </div>
@@ -186,6 +168,7 @@
     public string Email { get; set; }
     private List<Address> address2 = new List<Address>();
     private Address address = new Address();
+    private Address addressupdate = new Address();
     private LoginModel userAccount = new LoginModel();
     bool Isexist;
     protected override async Task OnInitializedAsync()
@@ -205,19 +188,27 @@
         if (userAccount != null)
         {
             address2 = await productServices.GetAddressforuser(userAccount.User_Id);
-
             if (address2 == null)
+            {
                 return false;
+            }
             else
+            {
+                @foreach (var pro in address2)
+                {
+                    addressupdate.Country = pro.Country;
+                    addressupdate.Street = pro.Street;
+                    addressupdate.ZipCode = pro.ZipCode;
+                }
                 return true;
+            }
         }
         else
         {
             return false;
         }
     }
-
-    private async Task LoadFiles(InputFileChangeEventArgs e)
+    private async Task LoadFilesComplete(InputFileChangeEventArgs e)
     {
         var file = e.File;
         if (file != null)
@@ -228,11 +219,27 @@
                 address.ImageData = memoryStream.ToArray();
             }
         }
+    }    private async Task LoadFilesUpdate(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.OpenReadStream().CopyToAsync(memoryStream);
+                addressupdate.ImageData = memoryStream.ToArray();
+            }
+        }
     }
     private async Task HandleValidSubmit()
     {
         address.User_ID = userAccount.User_Id;
         await productServices.Completeprofile(address);
         NavigationManager.NavigateTo("/home");
+    }
+    private async Task UpdateProfile()
+    {
+        addressupdate.User_ID = userAccount.User_Id;
+        await productServices.UpdateProfile(addressupdate);
     }
 }

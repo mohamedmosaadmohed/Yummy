@@ -1,6 +1,6 @@
 Create Database Yummy;
 -----------------------------------------
-CREATE TABLE Registeration(
+create TABLE Registeration(
 ID int primary Key Identity(1,1),
 Name NVARCHAR(200),
 Email NVARCHAR(200),
@@ -148,12 +148,12 @@ Create proc FilterByPrice
 )
 As
 Begin
-Select Name,Price,Description,Image from Product
-Where Price=@Price 
+Select Id_Product,Name,Price,Description,Image from Product
+Where Price=@Price
 AND Category_name=@Category_name
 End
 ------------------------------------------------------------------------------
-Create Table CompeleteProfile(
+create Table CompeleteProfile(
 Id int primary Key identity(1,1),
 Image VarBinary(Max),
 Country NVARCHAR(200),
@@ -175,7 +175,7 @@ Begin
 INSERT INTO CompeleteProfile (Image,Country,Street,ZipCode,User_Id) Values (@Image,@Country,
 @Street,@ZipCode,@User_Id)
 End
------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
 CReate proc SP_GetAddressForUser
 (
 @Id_user int
@@ -185,4 +185,23 @@ Begin
 select * from CompeleteProfile
 Where User_Id=@Id_user
 End
-----------------------------------------------------------------------------
+--------------------------------------------------------------------------------------
+Create Proc SP_UpdateCompleteProfile
+(
+@Image VarBinary(Max),
+@Country NVARCHAR(200),
+@Street NVARCHAR(200),
+@ZipCode NVARCHAR(200),
+@User_Id int
+)
+AS
+BEGIN
+    UPDATE CompeleteProfile
+    SET 
+        Image = @Image,
+		Country = @Country,
+        Street = @Street,
+        ZipCode = @ZipCode
+    WHERE User_Id = @User_Id;
+END
+---------------------------------------------------------------------------------------

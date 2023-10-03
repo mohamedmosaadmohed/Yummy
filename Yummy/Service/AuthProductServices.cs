@@ -141,6 +141,22 @@ namespace BlazorA.Service
                 return null;
             }
         }
+        public async Task UpdateProfile(Address address)
+        {
+            await httpClient.PutAsJsonAsync("api/Auth/Update-profile", address);
+        }
+        public async Task<List<Product>> Filterbyprice(Product products)
+        {
+            var response = await httpClient.GetFromJsonAsync<List<Product>>($"api/Auth/price");
 
+            if (response != null)
+            {
+                return response;
+            }
+            else
+            {
+                throw new Exception("Failed to retrieve data from the API.");
+            }
+        }
     }
 }

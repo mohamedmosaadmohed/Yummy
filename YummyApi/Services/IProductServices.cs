@@ -21,5 +21,7 @@ namespace Blazor.Shared.Services
         Task AddCompleteProfile(Addrees address);
         Task<IEnumerable<Addrees>> GetAddressForUser(int ID);
         Task<DataTable> GetEmptyImage();
+        Task UpdateCompleteProfile(Addrees addrees);
+        Task<IEnumerable<Product>> FilterByPrice(Product products);
     }
 }

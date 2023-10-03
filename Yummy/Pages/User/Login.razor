@@ -67,7 +67,6 @@
     private async Task HandleValidSubmit()
     {
         userAccount = await productServices.CheckLogin(login.Email);
-
         if (userAccount == null)
         {
             emailErrorMessage = "Invalid User Name or Password";

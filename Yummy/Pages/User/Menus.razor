@@ -145,7 +145,7 @@
                             <div class="card-body">
                                 <div class="shop__sidebar__price">
                                     <ul>
-                                        <li><a href="#">$0.00 - $50.00</a></li>
+                                        <li><a >$0.00 - $50.00</a></li>
                                         <li><a href="#">$50.00 - $100.00</a></li>
                                         <li><a href="#">$100.00 - $150.00</a></li>
                                         <li><a href="#">$150.00 - $200.00</a></li>
@@ -182,5 +182,9 @@
     protected async Task GetListProductCatagory(string categoryName)
     {
         products = await productServices.GetCatagoryWithName(categoryName);
+    }
+    private async Task filterbyprice(int price)
+    {
+        
     }
 }
